@@ -1,100 +1,91 @@
 # CineRoom
 
-Film tabanlı sohbet uygulaması. Kullanıcılar filmler hakkında notlar alabilir, favori listeleri oluşturabilir, film önerileri alabilir ve CineRoom gruplarında sohbet edebilir.
+A movie-based chat application. Users can take notes about movies, create favorite lists, get movie recommendations, and chat in CineRoom groups.
 
-## Özellikler
+## Features
 
-- Firebase Authentication ile giriş/kayıt
-- Film arama ve detayları (TMDB API)
-- Favori film listesi
-- Film notları
-- Film öneri sistemi
-- CineRoom gruplarında sohbet
-- Profil sayfası (banner, profil fotoğrafı)
+- Login/registration with Firebase Authentication
+- Movie search and details (TMDB API)
+- Favorite movie list
+- Movie notes
+- Movie recommendation system
+- Chat in CineRoom groups
+- Profile page (banner, profile picture)
 
-## Gereksinimler
+## Requirements
 
 - [Flutter](https://flutter.dev/docs/get-started/install) (SDK ^3.5.3)
-- [Firebase](https://console.firebase.google.com/) projesi
-- [TMDB](https://www.themoviedb.org/) API hesabı (ücretsiz)
+- [Firebase](https://console.firebase.google.com/) project
 
-## Kurulum
+- [TMDB](https://www.themoviedb.org/) API account (free)
 
-### 1. Bağımlılıkları yükle
+## Installation
+
+### 1. Install dependencies
 
 ```bash
 flutter pub get
 ```
+### 2. Environment Variables (.env)
 
-### 2. Ortam değişkenleri (.env)
-
-Proje kök dizininde `.env` dosyası oluştur ve TMDB anahtarlarını ekle:
+Create a `.env` file in the project root directory and add the TMDB keys:
 
 ```bash
 # Windows (PowerShell)
 Copy-Item .env.example .env
-
 # Linux / macOS
 cp .env.example .env
 ```
 
-Ardından `.env` dosyasını bir metin editörüyle açıp `your_tmdb_api_key_here` ve `your_tmdb_read_access_token_here` değerlerini kendi anahtarlarınızla değiştirin.
+Then open the `.env` file with a text editor and replace `your_tmdb_api_key_here` and `your_tmdb_read_access_token_here` with your own keys.
 
-`.env` dosyasına eklenecekler:
+The following will be added to the `.env` file:
 
-| Değişken | Açıklama | Nereden alınır |
+| Variable | Description | Where to get |
 |----------|----------|----------------|
-| `TMDB_API_KEY` | TMDB API Key | [TMDB API Ayarları](https://www.themoviedb.org/settings/api) |
-| `TMDB_READ_ACCESS_TOKEN` | TMDB Read Access Token | TMDB API sayfasında "Request API Key" → "Developer" seçeneği ile alınır |
+| `TMDB_API_KEY` | TMDB API Key | [TMDB API Settings](https://www.themoviedb.org/settings/api) |
+| `TMDB_READ_ACCESS_TOKEN` | TMDB Read Access Token | Obtained via "Request API Key" → "Developer" option on the TMDB API page |
 
-### 3. Firebase yapılandırması
+### 3. Firebase configuration
 
-Uygulama Firebase kullanır. Kendi Firebase projenizi bağlamak için:
+The application uses Firebase. To connect your own Firebase project:
 
 ```bash
-# FlutterFire CLI'ı çalıştır (Firebase Console'da oturum açmanız gerekebilir)
+# Run FlutterFire CLI (You may need to sign in to the Firebase Console)
 dart run flutterfire_cli:flutterfire configure
 ```
 
-Bu komut `lib/firebase_options.dart`, `android/app/google-services.json` ve `ios/Runner/GoogleService-Info.plist` dosyalarını oluşturur/günceller.
+This command creates/updates the `lib/firebase_options.dart`, `android/app/google-services.json`, and `ios/Runner/GoogleService-Info.plist` files.
 
-Mevcut bir Firebase projesi zaten yapılandırılmışsa bu adımı atlayabilirsiniz.
-
-### 4. Uygulamayı çalıştır
+You can skip this step if an existing Firebase project is already configured.
+### 4. Run the application
 
 ```bash
 flutter run
 ```
-
-## Proje yapısı
+## Project structure
 
 ```
 lib/
 ├── config/
-│   └── env_config.dart      # API anahtarları (.env'den okur)
-├── pages/                   # Sayfa widget'ları
-├── widgets/                 # Yeniden kullanılabilir widget'lar
-├── cheatchat/               # Sohbet özellikleri
-├── recommender/             # Film öneri sistemi
-├── firebase_options.dart    # Firebase yapılandırması (FlutterFire ile oluşturulur)
+│ └── env_config.dart # API keys (reads from .env)
+├── pages/ # Page widgets
+├── widgets/ # Reusable widgets
+├── cheatchat/ # Chat features
+├── recommender/ # Movie recommendation system
+├── firebase_options.dart # Firebase configuration (created with FlutterFire)
 └── main.dart
 ```
 
-## Bağımlılıklar
+## Dependencies
 
-- **firebase_core, firebase_auth, cloud_firestore, firebase_storage** – Firebase servisleri
-- **flutter_dotenv** – Ortam değişkenleri (.env)
-- **tmdb_api** – TMDB film API
-- **provider** – State yönetimi
-- **google_fonts** – Özel fontlar
-- **image_picker** – Görsel seçimi
-- **flutter_local_notifications** – Yerel bildirimler
-
-## GitHub'a yüklemeden önce
-
-- `.env` dosyası `.gitignore`'da olduğundan commit edilmez ✓
-- API anahtarlarınızı asla koda yazmayın
-- `.env.example` dosyasını güncel tutun (gerçek değerler olmadan)
+- **firebase_core, firebase_auth, cloud_firestore, firebase_storage** – Firebase services
+- **flutter_dotenv** – Environment variables (.env)
+- **tmdb_api** – TMDB movie API
+- **provider** – State management
+- **google_fonts** – Custom fonts
+- **image_picker** – Image selection
+- **flutter_local_notifications** – Local notifications
 
 ## Lisans
 
