@@ -1,0 +1,155 @@
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'movie_search_service.dart';
+
+class MovieRecommenderPage extends StatefulWidget {
+  const MovieRecommenderPage({Key? key}) : super(key: key);
+
+  @override
+  _MovieRecommenderPageState createState() => _MovieRecommenderPageState();
+}
+
+class _MovieRecommenderPageState extends State<MovieRecommenderPage> {
+  final List<TextEditingController> _controllers = List.generate(
+    4,
+    (_) => TextEditingController(),
+  );
+  final MovieSearchService _movieService = MovieSearchService();
+  List<Map<String, dynamic>> recommendations = [];
+  bool _isLoading = false;
+
+  Future<void> _saveToDatabase(String movieName, String listType) async {
+    final db = FirebaseFirestore.instance;
+    await db.collection(listType).add({'name': movieName});
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$movieName added to $listType')),
+    );
+  }
+
+  Future<void> getRecommendations() async {
+    setState(() {
+      _isLoading = true;
+      recommendations = [];
+    });
+
+    try {
+      // Fetch recommendations for each movie
+      Set<Map<String, dynamic>> allRecommendations = {};
+
+      for (var controller in _controllers) {
+        final movieName = controller.text.trim();
+        if (movieName.isEmpty) continue;
+
+        final movieId = await _movieService.searchMovie(movieName);
+        if (movieId != null) {
+          final recommendedMovieIds =
+              await _movieService.getRecommendations(movieId);
+
+          for (var recId in recommendedMovieIds) {
+            final movieDetails = await _movieService.getMovieDetails(recId);
+            if (movieDetails != null) {
+              allRecommendations.add(movieDetails);
+            }
+          }
+        }
+      }
+
+      setState(() {
+        recommendations = allRecommendations.toList();
+      });
+    } catch (e) {
+      print('Error fetching recommendations: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Film Önerileri')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            ..._controllers.map(
+              (controller) => TextField(
+                controller: controller,
+                decoration: const InputDecoration(labelText: 'Film Adı'),
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: getRecommendations,
+              child: _isLoading
+                  ? const CircularProgressIndicator(
+                      color: Colors.white,
+                    )
+                  : const Text('Önerileri Al'),
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: recommendations.isEmpty
+                  ? const Center(child: Text('Henüz öneri yok.'))
+                  : ListView.builder(
+                      itemCount: recommendations.length,
+                      itemBuilder: (context, index) {
+                        final movie = recommendations[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  if (movie['poster_path'] != null)
+                                    Image.network(
+                                      'https://image.tmdb.org/t/p/w200${movie['poster_path']}',
+                                      height: 50,
+                                      width: 50,
+                                      fit: BoxFit.cover,
+                                    )
+                                  else
+                                    const Icon(Icons.movie, size: 50),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      movie['title'] ?? 'Unknown',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () => _saveToDatabase(
+                                        movie['title'], 'watchlist'),
+                                    child: const Text('Add Watchlist'),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  ElevatedButton(
+                                    onPressed: () => _saveToDatabase(
+                                        movie['title'], 'watchedlist'),
+                                    child: const Text('Add to Favorites'),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
